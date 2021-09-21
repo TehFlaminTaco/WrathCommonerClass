@@ -64,88 +64,22 @@ namespace WrathCommonerClass.Classes
             return bp;
         }
 
-        public static BlueprintParametrizedFeature CommonerProficiencies()
+        public static BlueprintFeature CommonerProficiencies()
         {
-            var bp = Utils.CreateBlueprint<BlueprintParametrizedFeature>("CommonerProficienciesFeature");
+            var bp = Utils.CreateBlueprint<BlueprintFeature>("CommonerProficienciesFeature");
             typeof(BlueprintUnitFact).GetField("m_DisplayName", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(bp, Utils.CreateString("CommonerWeaponProficiency.Name", "Commoner Weapon Proficiency"));
-            typeof(BlueprintUnitFact).GetField("m_Description", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(bp, Utils.CreateString("CommonerWeaponProficiency.Description", "The commoner is proficient with one simple weapon. He is not proficient with any other weapons, nor is he proficient with any type of armor or shield."));
-            typeof(BlueprintUnitFact).GetField("m_DescriptionShort", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(bp, Utils.CreateString("CommonerWeaponProficiency.DescriptionShort", "The commoner is proficient with one simple weapon. He is not proficient with any other weapons, nor is he proficient with any type of armor or shield."));
-            bp.ParameterType = FeatureParameterType.WeaponCategory;
-            bp.WeaponSubCategory = Kingmaker.Enums.WeaponSubCategory.Simple;
+            typeof(BlueprintUnitFact).GetField("m_Description", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(bp, Utils.CreateString("CommonerWeaponProficiency.Description", "The commoner is proficient with simple weapons. He is not proficient with any other weapons, nor is he proficient with any type of armor or shield."));
+            typeof(BlueprintUnitFact).GetField("m_DescriptionShort", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(bp, Utils.CreateString("CommonerWeaponProficiency.DescriptionShort", "The commoner is proficient with simple weapons. He is not proficient with any other weapons, nor is he proficient with any type of armor or shield."));
             bp.IsClassFeature = true;
             var addFacts = new AddFacts();
             addFacts.OwnerBlueprint = bp;
             typeof(AddFacts).GetField("m_Facts", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(addFacts, new BlueprintUnitFactReference[]{
-                BlueprintReference<BlueprintUnitFact>.CreateTyped<BlueprintUnitFactReference>(SimpleWeaponChoice())
+                BlueprintReference<BlueprintUnitFact>.CreateTyped<BlueprintUnitFactReference>(Resources.GetBlueprint<BlueprintFeature>("e70ecf1ed95ca2f40b754f1adb22bbdd"))
             });
             var comps = bp.ComponentsArray.ToList();
             comps.Add(addFacts);
             bp.ComponentsArray = comps.ToArray();
             return bp;
-        }
-
-        public static BlueprintParametrizedFeature SimpleWeaponChoice()
-        {
-            var bp = Utils.CreateBlueprint<BlueprintParametrizedFeature>("SimpleWeaponProficiencySelectionFeature");
-            //bp.Group = FeatureGroup.CombatFeat;
-            typeof(BlueprintUnitFact).GetField("m_DisplayName", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(bp, Utils.CreateString("SimpleWeaponProficiencySelection.Name", "Single Simple Weapon Proficiency"));
-            typeof(BlueprintUnitFact).GetField("m_Description", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(bp, Utils.CreateString("SimpleWeaponProficiencySelection.Description", "Proficiency in just one simple weapon."));
-            typeof(BlueprintUnitFact).GetField("m_DescriptionShort", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(bp, Utils.CreateString("SimpleWeaponProficiencySelection.DescriptionShort", "Proficiency in just one simple weapon."));
-            bp.ParameterType = FeatureParameterType.WeaponCategory;
-            bp.WeaponSubCategory = Kingmaker.Enums.WeaponSubCategory.Simple;
-            bp.IsClassFeature = true;
-            var comps = bp.ComponentsArray.ToList();
-            var addProfs = new AddProficienciesParameterized();
-            addProfs.OwnerBlueprint = bp;
-            comps.Add(addProfs);
-            bp.ComponentsArray = comps.ToArray();
-            
-            //foreach(BlueprintItemWeapon weap in BlueprintRoot.Instance.Progression.)
-            //bp.AddFeature(SimpleWeaponProficiency("fuck"));
-            return bp;
-        }
-
-        /*public static BlueprintFeature SimpleWeaponProficiency(BlueprintWeaponType item)
-        {
-            var bp = Utils.CreateBlueprint<BlueprintFeature>("SimpleWeaponProficiency" + item.name + "Feature");
-            (typeof(BlueprintFeature)).GetField("m_Icon", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(bp, item.Icon);
-            bp.name = item.name;
-            var comps = bp.ComponentsArray.ToList();
-            //comps.Add(new AddProficiency());
-            bp.ComponentsArray = comps.ToArray();
-            //bp.Description = item.Description;
-            //bp.DescriptionShort = item.Description;
-            return bp;
-        }*/
-
-        [ComponentName("Add proficiencies parameterized")]
-        [AllowedOn(typeof(BlueprintUnit), false)]
-        [AllowedOn(typeof(BlueprintUnitFact), false)]
-        [AllowMultipleComponents]
-        public class AddProficienciesParameterized : UnitFactComponentDelegate
-        {   
-            protected override void OnTurnOn()
-            {
-                if(Param.WeaponCategory is WeaponCategory wc){
-                    base.Owner.Proficiencies.Add(wc);
-                }
-            }
-            
-            protected override void OnTurnOff()
-            {
-                if (Param.WeaponCategory is WeaponCategory wc)
-                {
-                    base.Owner.Proficiencies.Remove(wc);
-                }
-            }
-
-            protected override void OnFactAttached()
-            {
-                if (Param.WeaponCategory is WeaponCategory wc)
-                {
-                    base.Owner.Proficiencies.Add(wc);
-                }
-            }
         }
     }
 }
