@@ -1,0 +1,13 @@
+﻿{
+    "AssemblyName": "WrathCommonerClass.dll",
+    "Author": "Teh Flamin' Taco",
+    "DisplayName": "Commoner Class",
+    "EntryMethod": "WrathCommonerClass.Main.Load",
+    "GameVersion": "1.0.0",
+    "HomePage": "https://github.com/Vek17/WrathMods-TabletopTweaks/releases",
+    "Id": "CommonerClass",
+    "ManagerVersion": "0.23.0",
+    "Repository": "https://raw.githubusercontent.com/Vek17/WrathMods-TabletopTweaks/master/Repository.json",
+    "Requirements": [],
+    "Version": "1.0.0"
+}
