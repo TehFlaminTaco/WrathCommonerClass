@@ -6,10 +6,12 @@ using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Blueprints.Root;
+using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.Utility;
+using System;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -23,6 +25,7 @@ namespace WrathCommonerClass.Classes
         {
             var cleric = Resources.GetBlueprint<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
             var bp = Utils.CreateBlueprint<BlueprintCharacterClass>("Commoner");
+            var bpRef = BlueprintReference<BlueprintCharacterClass>.CreateTyped<BlueprintCharacterClassReference>(bp);
             bp.name = "CommonerClass";
             bp.LocalizedName = Utils.CreateString("Commoner.Name", "Commoner");
             bp.LocalizedDescription = Utils.CreateString("Commoner.Description", "Has no limitations, yet nothing given.");
@@ -35,14 +38,19 @@ namespace WrathCommonerClass.Classes
             bp.SetReflexSave(BlueprintRoot.Instance.Progression.StatProgressions.SavesLow);
             bp.SetWillSave(BlueprintRoot.Instance.Progression.StatProgressions.SavesLow);
             bp.SetDifficulty(BlueprintCharacterClass.MaxDifficulty);
+            bp.ClassSkills = new StatType[]
+            {
+                StatType.SkillAthletics,
+                StatType.SkillMobility,
+                StatType.SkillPerception
+            };
 
             bp.PrimaryColor = cleric.PrimaryColor;
             bp.SecondaryColor = cleric.SecondaryColor;
-            bp.SetDefaultBuild(cleric.GetDefaultBuild());
-            bp.SetProgression(BlueprintReference<BlueprintProgression>.CreateTyped<BlueprintProgressionReference>(CommonerProgression()));
+            bp.SetProgression(BlueprintReference<BlueprintProgression>.CreateTyped<BlueprintProgressionReference>(CommonerProgression(bpRef)));
 
             var classes = BlueprintRoot.Instance.Progression.GetCharacterClasses().ToList();
-            classes.Add(BlueprintReference<BlueprintCharacterClass>.CreateTyped<BlueprintCharacterClassReference>(bp));
+            classes.Add(bpRef);
             classes.Sort((x, y) =>
             {
                 if (x.Get().PrestigeClass != y.Get().PrestigeClass) return x.Get().PrestigeClass ? 1 : -1;
@@ -51,10 +59,14 @@ namespace WrathCommonerClass.Classes
             BlueprintRoot.Instance.Progression.SetCharacterClasses(classes.ToArray());
         }
 
-        public static BlueprintProgression CommonerProgression()
+        public static BlueprintProgression CommonerProgression(BlueprintCharacterClassReference commoner)
         {
             var bp = Utils.CreateBlueprint<BlueprintProgression>("CommonerProgression");
-            typeof(BlueprintUnitFact).GetField("m_DisplayName", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(bp, Utils.CreateString("Commoner.Name", "Commoner"));
+            bp.Groups = new FeatureGroup[] { FeatureGroup.None };
+            typeof(BlueprintProgression).GetField("m_Classes", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(bp, new BlueprintProgression.ClassWithLevel[] { new BlueprintProgression.ClassWithLevel { m_Class = commoner } });
+            bp.IsClassFeature = true;
+            //bp.UIDeterminatorsGroup = Array.Empty<BlueprintFeatureBase>();
+            typeof(BlueprintUnitFact).GetField("m_DisplayName", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(bp, Utils.CreateString("CommonerProgression.Name", ""));
             var firstLevel = new LevelEntry();
             firstLevel.Level = 1;
             
