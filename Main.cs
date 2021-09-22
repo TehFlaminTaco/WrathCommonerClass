@@ -57,6 +57,15 @@ namespace WrathCommonerClass
         {
             static void Postfix()
             {
+                Utils.RegisterOldStrings();
+            }
+        }
+
+        [HarmonyPatch(typeof(BlueprintsCache), "Init")]
+        static class BlueprintsCache_Init_Patch
+        {
+            static void Postfix()
+            {
                 Commoner.Load();
             }
         }

@@ -12,6 +12,7 @@ using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.Utility;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -65,12 +66,9 @@ namespace WrathCommonerClass.Classes
             bp.Groups = new FeatureGroup[] { FeatureGroup.None };
             typeof(BlueprintProgression).GetField("m_Classes", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(bp, new BlueprintProgression.ClassWithLevel[] { new BlueprintProgression.ClassWithLevel { m_Class = commoner } });
             bp.IsClassFeature = true;
-            //bp.UIDeterminatorsGroup = Array.Empty<BlueprintFeatureBase>();
             typeof(BlueprintUnitFact).GetField("m_DisplayName", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(bp, Utils.CreateString("CommonerProgression.Name", ""));
             var firstLevel = new LevelEntry();
             firstLevel.Level = 1;
-            
-            //Resources.GetBlueprint<BlueprintFeature>("e70ecf1ed95ca2f40b754f1adb22bbdd")
             firstLevel.Features.Add(CommonerProficiencies());
             bp.AddLevelEntry(firstLevel);
             return bp;
@@ -78,19 +76,22 @@ namespace WrathCommonerClass.Classes
 
         public static BlueprintFeature CommonerProficiencies()
         {
-            var bp = Utils.CreateBlueprint<BlueprintFeature>("CommonerProficienciesFeature");
+            var bp = Utils.CreateBlueprint<BlueprintFeature>("CommonerProficiencies");
             typeof(BlueprintUnitFact).GetField("m_DisplayName", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(bp, Utils.CreateString("CommonerWeaponProficiency.Name", "Commoner Weapon Proficiency"));
             typeof(BlueprintUnitFact).GetField("m_Description", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(bp, Utils.CreateString("CommonerWeaponProficiency.Description", "The commoner is proficient with simple weapons. He is not proficient with any other weapons, nor is he proficient with any type of armor or shield."));
             typeof(BlueprintUnitFact).GetField("m_DescriptionShort", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(bp, Utils.CreateString("CommonerWeaponProficiency.DescriptionShort", "The commoner is proficient with simple weapons. He is not proficient with any other weapons, nor is he proficient with any type of armor or shield."));
             bp.IsClassFeature = true;
             var addFacts = new AddFacts();
             addFacts.OwnerBlueprint = bp;
+            addFacts.name = "AddFacts";
             typeof(AddFacts).GetField("m_Facts", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(addFacts, new BlueprintUnitFactReference[]{
                 BlueprintReference<BlueprintUnitFact>.CreateTyped<BlueprintUnitFactReference>(Resources.GetBlueprint<BlueprintFeature>("e70ecf1ed95ca2f40b754f1adb22bbdd"))
             });
             var comps = bp.ComponentsArray.ToList();
             comps.Add(addFacts);
             bp.ComponentsArray = comps.ToArray();
+            bp.IsPrerequisiteFor = new List<BlueprintFeatureReference>();
+            bp.OnEnable();
             return bp;
         }
     }

@@ -25,7 +25,24 @@ namespace WrathCommonerClass
             return result;
         }
 
+        public static void RegisterOldStrings()
+        {
+            var strings = LocalizationManager.CurrentPack.Strings;
+            foreach (var kvl in toRegister)
+            {
+                string oldValue;
+                if (strings.TryGetValue(kvl.Item1, out oldValue) && kvl.Item2 != oldValue)
+                {
+#if DEBUG
+                    Main.LogDebug($"Info: duplicate localized string `{kvl.Item1}`, different text.");
+#endif
+                }
+                strings[kvl.Item1] = kvl.Item2;
+            }
+        }
+
         // All localized strings created in this mod, mapped to their localized key. Populated by CreateString.
+        static List<Tuple<String, String>> toRegister = new List<Tuple<String, String>>();
         static Dictionary<String, LocalizedString> textToLocalizedString = new Dictionary<string, LocalizedString>();
         public static LocalizedString CreateString(string key, string value)
         {
@@ -41,21 +58,36 @@ namespace WrathCommonerClass
             {
                 return localized;
             }
-            var strings = LocalizationManager.CurrentPack.Strings;
-            String oldValue;
-            if (strings.TryGetValue(key, out oldValue) && value != oldValue)
+            var strings = LocalizationManager.CurrentPack?.Strings;
+            if(strings is null)
             {
-#if DEBUG
-                Main.LogDebug($"Info: duplicate localized string `{key}`, different text.");
-#endif
+                localized = new LocalizedString
+                {
+                    Key = key
+                };
+                textToLocalizedString[value] = localized;
+
+                toRegister.Add(new Tuple<String, String>(key, value));
+
+                return localized;
             }
-            strings[key] = value;
-            localized = new LocalizedString
+            else
             {
-                Key = key
-            };
-            textToLocalizedString[value] = localized;
-            return localized;
+                String oldValue;
+                if (strings.TryGetValue(key, out oldValue) && value != oldValue)
+                {
+#if DEBUG
+                    Main.LogDebug($"Info: duplicate localized string `{key}`, different text.");
+#endif
+                }
+                strings[key] = value;
+                localized = new LocalizedString
+                {
+                    Key = key
+                };
+                textToLocalizedString[value] = localized;
+                return localized;
+            }
         }
     }
 }
